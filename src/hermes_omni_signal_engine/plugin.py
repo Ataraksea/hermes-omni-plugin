@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from dataclasses import asdict
 from typing import Any
@@ -16,6 +17,8 @@ from .runner import (
     omni_version,
     run_shell_command,
 )
+
+logger = logging.getLogger(__name__)
 
 _TOOLSET = "omni"
 _REGISTERED = False
@@ -296,6 +299,8 @@ def _transform_terminal_output(*, command: str, output: str, returncode: int = 0
     if not output:
         return None
     result = distill_text(output, command or "terminal", cfg)
+    if not result.ok:
+        logger.debug("OMNI distillation failed (omni_exit=%s): %s", result.returncode, result.error)
     if not result.stdout or result.stdout == output:
         return None
     header = "[OMNI distilled terminal output"
@@ -310,26 +315,26 @@ def register(ctx) -> None:
     if _REGISTERED:
         return
 
-    ctx.register_tool(
-        name="omni_status",
-        toolset=_TOOLSET,
-        schema={"name": "omni_status", "description": "Show OMNI Signal Engine plugin status, resolved binary path, and current config.", "parameters": {"type": "object", "properties": {}}},
-        handler=_tool_status,
-        check_fn=lambda: True,
-        requires_env=[],
-        description="OMNI plugin status",
-        emoji="🛰️",
-    )
-    ctx.register_tool(
-        name="omni_compress",
-        toolset=_TOOLSET,
-        schema={"name": "omni_compress", "description": "Distill arbitrary text through the local OMNI pipeline without executing commands.", "parameters": {"type": "object", "properties": {"text": {"type": "string"}, "command": {"type": "string", "default": "hermes"}, "cwd": {"type": "string"}}, "required": ["text"]}},
-        handler=_tool_compress,
-        check_fn=_omni_available,
-        requires_env=[],
-        description="Distill text with OMNI",
-        emoji="💎",
-    )
+    # ctx.register_tool(
+    #     name="omni_status",
+    #     toolset=_TOOLSET,
+    #     schema={"name": "omni_status", "description": "Show OMNI Signal Engine plugin status, resolved binary path, and current config.", "parameters": {"type": "object", "properties": {}}},
+    #     handler=_tool_status,
+    #     check_fn=lambda: True,
+    #     requires_env=[],
+    #     description="OMNI plugin status",
+    #     emoji="🛰️",
+    # )
+    # ctx.register_tool(
+    #     name="omni_compress",
+    #     toolset=_TOOLSET,
+    #     schema={"name": "omni_compress", "description": "Distill arbitrary text through the local OMNI pipeline without executing commands.", "parameters": {"type": "object", "properties": {"text": {"type": "string"}, "command": {"type": "string", "default": "hermes"}, "cwd": {"type": "string"}}, "required": ["text"]}},
+    #     handler=_tool_compress,
+    #     check_fn=_omni_available,
+    #     requires_env=[],
+    #     description="Distill text with OMNI",
+    #     emoji="💎",
+    # )
     ctx.register_tool(
         name="omni_rewind",
         toolset=_TOOLSET,
@@ -340,36 +345,36 @@ def register(ctx) -> None:
         description="Retrieve OMNI rewind output",
         emoji="⏪",
     )
-    ctx.register_tool(
-        name="omni_stats",
-        toolset=_TOOLSET,
-        schema={"name": "omni_stats", "description": "Show OMNI token/cost savings statistics.", "parameters": {"type": "object", "properties": {"period": {"type": "string", "enum": ["default", "today", "week", "month", "session"], "default": "default"}}}},
-        handler=_tool_stats,
-        check_fn=_omni_available,
-        requires_env=[],
-        description="Show OMNI stats",
-        emoji="📊",
-    )
-    ctx.register_tool(
-        name="omni_doctor",
-        toolset=_TOOLSET,
-        schema={"name": "omni_doctor", "description": "Run OMNI diagnostics. Set fix=true only when you explicitly want OMNI to repair local config.", "parameters": {"type": "object", "properties": {"fix": {"type": "boolean", "default": False}}}},
-        handler=_tool_doctor,
-        check_fn=_omni_available,
-        requires_env=[],
-        description="Run OMNI doctor",
-        emoji="🩺",
-    )
-    ctx.register_tool(
-        name="omni_cmd",
-        toolset=_TOOLSET,
-        schema={"name": "omni_cmd", "description": "Opt-in terminal-equivalent command runner: execute a shell command and distill its output through OMNI. Disabled by default in plugin config.", "parameters": {"type": "object", "properties": {"command": {"type": "string"}, "cwd": {"type": "string"}, "timeout_seconds": {"type": "integer"}}, "required": ["command"]}},
-        handler=_tool_cmd,
-        check_fn=lambda: _omni_available() and _cfg().enable_omni_cmd,
-        requires_env=[],
-        description="Run command through OMNI (opt-in)",
-        emoji="⚙️",
-    )
+    # ctx.register_tool(
+    #     name="omni_stats",
+    #     toolset=_TOOLSET,
+    #     schema={"name": "omni_stats", "description": "Show OMNI token/cost savings statistics.", "parameters": {"type": "object", "properties": {"period": {"type": "string", "enum": ["default", "today", "week", "month", "session"], "default": "default"}}}},
+    #     handler=_tool_stats,
+    #     check_fn=_omni_available,
+    #     requires_env=[],
+    #     description="Show OMNI stats",
+    #     emoji="📊",
+    # )
+    # ctx.register_tool(
+    #     name="omni_doctor",
+    #     toolset=_TOOLSET,
+    #     schema={"name": "omni_doctor", "description": "Run OMNI diagnostics. Set fix=true only when you explicitly want OMNI to repair local config.", "parameters": {"type": "object", "properties": {"fix": {"type": "boolean", "default": False}}}},
+    #     handler=_tool_doctor,
+    #     check_fn=_omni_available,
+    #     requires_env=[],
+    #     description="Run OMNI doctor",
+    #     emoji="🩺",
+    # )
+    # ctx.register_tool(
+    #     name="omni_cmd",
+    #     toolset=_TOOLSET,
+    #     schema={"name": "omni_cmd", "description": "Opt-in terminal-equivalent command runner: execute a shell command and distill its output through OMNI. Disabled by default in plugin config.", "parameters": {"type": "object", "properties": {"command": {"type": "string"}, "cwd": {"type": "string"}, "timeout_seconds": {"type": "integer"}}, "required": ["command"]}},
+    #     handler=_tool_cmd,
+    #     check_fn=lambda: _omni_available() and _cfg().enable_omni_cmd,
+    #     requires_env=[],
+    #     description="Run command through OMNI (opt-in)",
+    #     emoji="⚙️",
+    # )
     ctx.register_hook("transform_terminal_output", _transform_terminal_output)
     ctx.register_command("omni", handler=_slash, description="OMNI Signal Engine status, stats, and diagnostics", args_hint="status|stats|doctor")
     _REGISTERED = True
