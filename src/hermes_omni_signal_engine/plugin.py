@@ -315,16 +315,16 @@ def register(ctx) -> None:
     if _REGISTERED:
         return
 
-    # ctx.register_tool(
-    #     name="omni_status",
-    #     toolset=_TOOLSET,
-    #     schema={"name": "omni_status", "description": "Show OMNI Signal Engine plugin status, resolved binary path, and current config.", "parameters": {"type": "object", "properties": {}}},
-    #     handler=_tool_status,
-    #     check_fn=lambda: True,
-    #     requires_env=[],
-    #     description="OMNI plugin status",
-    #     emoji="🛰️",
-    # )
+    ctx.register_tool(
+        name="omni_status",
+        toolset=_TOOLSET,
+        schema={"name": "omni_status", "description": "Show OMNI Signal Engine plugin status, resolved binary path, and current config.", "parameters": {"type": "object", "properties": {}}},
+        handler=_tool_status,
+        check_fn=lambda: True,
+        requires_env=[],
+        description="OMNI plugin status",
+        emoji="🛰️",
+    )
     # ctx.register_tool(
     #     name="omni_compress",
     #     toolset=_TOOLSET,

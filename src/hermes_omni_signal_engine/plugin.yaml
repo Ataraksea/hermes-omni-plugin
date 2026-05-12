@@ -1,0 +1,6 @@
+name: hermes-omni-plugin
+version: 0.2.0
+description: "Hermes Agent plugin for the [OMNI Semantic Signal Engine](https://github.com/fajarhide/omni): local-first terminal output distillation, rewind retrieval, stats, and diagnostics."
+author: "@LVT382009 (original), NousResearch (plugin port)"
+hooks:
+  - transform_terminal_output
